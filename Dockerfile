@@ -37,6 +37,9 @@ RUN chown -R node:node /app
 # Security hardening: Run as non-root user
 # The node:22-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
+# Bun is only needed at build time; don't keep /root in PATH at runtime
+ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 USER node
 
 # Start gateway server with default config.
