@@ -43,4 +43,5 @@ PY
 fi
 
 # Start OpenClaw (matches package.json "start")
-exec node scripts/run-node.mjs
+exec "$@"
+
