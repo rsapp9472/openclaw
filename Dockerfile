@@ -50,8 +50,8 @@ USER node
 # For container platforms requiring external health checks:
 #   1. Set OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_PASSWORD env var
 #   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
-COPY --chmod=755 entrypoint.sh /app/entrypoint.sh
-CMD ["/app/entrypoint.sh"]
+COPY entrypoint.sh /app/entrypoint.sh
+CMD ["bash", "/app/entrypoint.sh"]
 
 
 
