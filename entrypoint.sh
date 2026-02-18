@@ -3,6 +3,8 @@ set -euo pipefail
 
 CFG="/data/.openclaw/openclaw.json"
 
+echo "OPENCLAW_GATEWAY_TOKEN is set? $([ -n "${OPENCLAW_GATEWAY_TOKEN:-}" ] && echo yes || echo no)"
+
 # If config exists, remove bad gateway.bind and apply trusted proxies from env
 if [ -f "$CFG" ]; then
   python3 - <<'PY'
