@@ -16,6 +16,19 @@ with open(cfg_path, "r") as f:
 
 gw = cfg.get("gateway") or {}
 
+# --- scrub unsupported gateway.controlUi keys on persisted disk config ---
+control_ui = gw.get("controlUi")
+if isinstance(control_ui, dict):
+    changed = False
+    for k in ("requireDeviceAuth", "requirePairing"):
+        if k in control_ui:
+            del control_ui[k]
+            changed = True
+    # If controlUi becomes empty, remove it entirely (optional but clean)
+    if changed and not control_ui:
+        gw.pop("controlUi", None)
+# --- end scrub ---
+
 # Remove bind completely (your logs show gateway.bind can be invalid)
 if "bind" in gw:
     del gw["bind"]
@@ -45,5 +58,6 @@ PY
 fi
 
 # Start OpenClaw gateway
-exec node openclaw.mjs gateway --allow-unconfigured --bind lan --port "${PORT:-8080}"
+exec node openclaw.mjs gateway --allow-unconfigured --bind 0.0.0.0 --port "${PORT:-8080}"
+
 
