@@ -57,7 +57,7 @@ print("patched", cfg_path)
 PY
 fi
 
-# Start OpenClaw gateway
-exec node openclaw.mjs gateway --allow-unconfigured --bind 0.0.0.0 --port "${PORT:-8080}"
+# Start OpenClaw gatewayexec node openclaw.mjs gateway --allow-unconfigured --bind lan --port "${PORT:-8080}"
+
 
 
