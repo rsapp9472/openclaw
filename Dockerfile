@@ -69,3 +69,4 @@ USER node
 #   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
 COPY entrypoint.sh /app/entrypoint.sh
 CMD ["bash", "/app/start.sh"]
+# docker-cache-bust 2026-02-21T18:29:24
