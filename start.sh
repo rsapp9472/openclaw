@@ -77,3 +77,4 @@ fi
 # Start the main OpenClaw application
 echo "Starting OpenClaw: $OPENCLAW_START_CMD"
 exec sh -lc "$OPENCLAW_START_CMD"
+# render-cache-bust 2026-02-21T18:05:48
