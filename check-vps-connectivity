@@ -1,0 +1,19 @@
+#!/bin/sh
+set -e
+
+# Default values
+TS_SOCKS_PORT=${TS_SOCKS_PORT:-1055}
+VPS_TAILSCALE_IP=${VPS_TAILSCALE_IP:-100.82.227.84}
+SSH_PORT=${SSH_PORT:-22}
+
+echo "Testing connectivity to VPS via Tailscale SOCKS5 proxy..."
+
+# Test TCP connectivity to SSH port
+if nc -z -X 5 -x 127.0.0.1:$TS_SOCKS_PORT $VPS_TAILSCALE_IP $SSH_PORT; then
+    echo "Success: VPS SSH port ($SSH_PORT) is reachable via Tailscale"
+    exit 0
+else
+    echo "Warning: Cannot reach VPS SSH port ($SSH_PORT) via Tailscale"
+    echo "This is non-fatal - application will continue starting"
+    exit 0
+fi
