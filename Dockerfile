@@ -11,6 +11,16 @@ RUN corepack prepare pnpm@9.15.0 --activate
 WORKDIR /app
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
+
+# Install Tailscale + SSH tools for VPS connectivity
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    ca-certificates curl jq netcat-openbsd openssh-client && \
+    curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null && \
+    curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list >/dev/null && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends tailscale
+
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
       DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
@@ -39,6 +49,13 @@ RUN chown -R node:node /app
 # Security hardening: Run as non-root user
 # The node:22-bookworm image includes a 'node' user (uid 1000)
 # This reduces the attack surface by preventing container escape via root privileges
+
+# Copy Tailscale SSH scripts and make executable
+COPY start.sh /app/start.sh
+COPY ssh-vps /app/ssh-vps
+COPY check-vps-connectivity /app/check-vps-connectivity
+RUN chmod +x /app/start.sh /app/ssh-vps /app/check-vps-connectivity
+
 # Bun is only needed at build time; don't keep /root in PATH at runtime
 ENV PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -51,7 +68,5 @@ USER node
 #   1. Set OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_PASSWORD env var
 #   2. Override CMD: ["node","openclaw.mjs","gateway","--allow-unconfigured","--bind","lan"]
 COPY entrypoint.sh /app/entrypoint.sh
-CMD ["bash", "/app/entrypoint.sh"]
-
-
-
+CMD ["bash", "/app/start.sh"]
+# docker-cache-bust 2026-02-21T18:29:24
