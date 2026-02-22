@@ -2,9 +2,8 @@
 set -e
 
 # Default values - non-root compatible paths
-TS_SOCKS_PORT=${TS_SOCKS_PORT:-1055}
-VPS_TAILSCALE_IP=${VPS_TAILSCALE_IP:-100.82.227.84}
-VPS_SSH_USER=${VPS_SSH_USER:-root}
+VPS_TAILSCALE_IP="${VPS_TAILSCALE_IP:-100.82.227.84}"
+VPS_SSH_USER="${VPS_SSH_USER:-root}"
 SSH_DIR="/tmp/.ssh"
 SSH_KEY_PATH="${SSH_DIR}/vps_key"
 TAILSCALE_SOCKET_DIR="/tmp/tailscale"
@@ -24,11 +23,12 @@ if [ ! -S "$TAILSCALE_SOCKET" ]; then
     exit 1
 fi
 
-# Execute SSH with direct arguments
+TS_PROXY_CMD="tailscale --socket=$TAILSCALE_SOCKET nc %h %p"
+
 if [ $# -eq 0 ]; then
     echo "Connecting to VPS via Tailscale..."
     exec ssh \
-        -o "ProxyCommand=nc -X 5 -x 127.0.0.1:${TS_SOCKS_PORT} %h %p" \
+        -o "ProxyCommand=$TS_PROXY_CMD" \
         -o ConnectTimeout=30 \
         -o ServerAliveInterval=60 \
         -o ServerAliveCountMax=3 \
@@ -40,7 +40,7 @@ if [ $# -eq 0 ]; then
 else
     echo "Executing remote command on VPS via Tailscale..."
     exec ssh \
-        -o "ProxyCommand=nc -X 5 -x 127.0.0.1:${TS_SOCKS_PORT} %h %p" \
+        -o "ProxyCommand=$TS_PROXY_CMD" \
         -o ConnectTimeout=30 \
         -o ServerAliveInterval=60 \
         -o ServerAliveCountMax=3 \
