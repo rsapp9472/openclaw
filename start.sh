@@ -9,7 +9,7 @@ TS_HOSTNAME=${TS_HOSTNAME:-openclaw-render}
 VPS_TAILSCALE_IP=${VPS_TAILSCALE_IP:-100.82.227.84}
 VPS_SSH_USER=${VPS_SSH_USER:-root}
 # IMPORTANT: Replace OPENCLAW_START_CMD with your actual Render/OpenClaw start command
-OPENCLAW_START_CMD=${OPENCLAW_START_CMD:-"bash /app/entrypoint.sh"}
+OPENCLAW_START_CMD=${OPENCLAW_START_CMD:-"node openclaw.mjs gateway --allow-unconfigured --bind lan --port ${PORT:-8080}"}
 
 # Startup guard: exit with error if OPENCLAW_START_CMD is still placeholder
 if [ "$OPENCLAW_START_CMD" = "YOUR_OPENCLAW_START_COMMAND_HERE" ]; then
