@@ -8,7 +8,6 @@ TS_SOCKS_PORT=${TS_SOCKS_PORT:-1055}
 TS_HOSTNAME=${TS_HOSTNAME:-openclaw-render}
 VPS_TAILSCALE_IP=${VPS_TAILSCALE_IP:-100.82.227.84}
 VPS_SSH_USER=${VPS_SSH_USER:-root}
-# IMPORTANT: Replace OPENCLAW_START_CMD with your actual Render/OpenClaw start command
 OPENCLAW_START_CMD=${OPENCLAW_START_CMD:-"node openclaw.mjs gateway --allow-unconfigured --bind lan --port ${PORT:-8080}"}
 
 # Startup guard: exit with error if OPENCLAW_START_CMD is still placeholder
@@ -24,7 +23,7 @@ TAILSCALE_SOCKET_DIR="/tmp/tailscale"
 TAILSCALE_STATE_FILE="/tmp/tailscale.state"
 
 # Create SSH key from environment variable if provided
-if [ -n "$VPS_SSH_KEY_B64" ]; then
+if [ -n "${VPS_SSH_KEY_B64:-}" ]; then
     echo "Setting up SSH key from environment variable..."
     mkdir -p "$SSH_DIR"
     echo "$VPS_SSH_KEY_B64" | base64 -d > "$SSH_DIR/vps_key"
@@ -36,7 +35,7 @@ if [ -n "$VPS_SSH_KEY_B64" ]; then
 fi
 
 # Start Tailscale in userspace mode if auth key is provided
-if [ -n "$TAILSCALE_AUTHKEY" ]; then
+if [ -n "${TAILSCALE_AUTHKEY:-}" ]; then
     echo "Starting Tailscale in userspace mode..."
     mkdir -p "$TAILSCALE_SOCKET_DIR"
 
@@ -50,18 +49,17 @@ if [ -n "$TAILSCALE_AUTHKEY" ]; then
     sleep 2
 
     echo "Authenticating Tailscale..."
-    if tailscale up \
-        --socket="$TAILSCALE_SOCKET_DIR/tailscaled.sock" \
-        --authkey="$TAILSCALE_AUTHKEY" \
+    if TS_SOCKET="$TAILSCALE_SOCKET_DIR/tailscaled.sock" tailscale up \
+        --auth-key="$TAILSCALE_AUTHKEY" \
         --hostname="$TS_HOSTNAME" \
         --accept-routes=false \
         --accept-dns=false; then
         echo "Tailscale authentication successful"
 
         echo "Tailscale status:"
-        tailscale status --socket="$TAILSCALE_SOCKET_DIR/tailscaled.sock" || true
+        TS_SOCKET="$TAILSCALE_SOCKET_DIR/tailscaled.sock" tailscale status || true
         echo "Tailscale IP:"
-        tailscale ip --socket="$TAILSCALE_SOCKET_DIR/tailscaled.sock" || true
+        TS_SOCKET="$TAILSCALE_SOCKET_DIR/tailscaled.sock" tailscale ip || true
 
         echo "Testing VPS connectivity..."
         /app/check-vps-connectivity || echo "VPS connectivity test failed (non-fatal)"
